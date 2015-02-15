@@ -1,7 +1,3 @@
-#include <SPI.h>
-#include <boards.h>
-#include <RBL_nRF8001.h>
-#include <services.h>
 #include <Wtv020sd16p.h>
 #include <PololuLedStrip.h>
 
@@ -27,11 +23,12 @@ int threshold = 10;
 int lastHeight = 0;
 
 void setColors(int distanceRead) {
+  distanceRead -= 150;
   float percentage = 1;
-  if (distanceRead > 650) {
+  if (distanceRead > 400) {
     percentage = 1;
   } else {
-    percentage = (float) distanceRead / 650;
+    percentage = (float) distanceRead / 400;
   }
   
   int barAmount = LED_COUNT * (percentage);
@@ -59,14 +56,11 @@ void setColors(int distanceRead) {
 }
 
 void setup()
-{
-  ble_set_name("My Name");
-  ble_begin();
-  
+{ 
   soundCtrl.reset();
   setColors(650);
   
-  Serial.begin(57600);
+  Serial.begin(9600);
 }
 
 unsigned char buf[16] = {0};
@@ -74,16 +68,6 @@ unsigned char len = 0;
 
 void loop()
 {
-  if ( ble_available() )
-  {
-    while ( ble_available() )
-      Serial.write(ble_read());
-      
-    Serial.println();
-  }
-  
-  ble_do_events();
-  
   int val = analogRead(4);
   sum += val;
   counter += 1;
@@ -102,10 +86,10 @@ void loop()
     counter = 0;
     sum = 0;
     
-    if ((lastHeight - dishes) > 80) {
+    if ((lastHeight - dishes) > 30) {
       soundCtrl.asyncPlayVoice(1);
       Serial.println("c");
-    } else if ((lastHeight - dishes) < -80) {
+    } else if ((lastHeight - dishes) < -30) {
       soundCtrl.asyncPlayVoice(0);
       Serial.println("c");
     }
@@ -113,6 +97,6 @@ void loop()
     lastHeight = dishes;
   }
   
-  delay(40);
+  delay(200);
 }
 
