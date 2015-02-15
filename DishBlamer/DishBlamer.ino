@@ -20,6 +20,14 @@ int sum = 0;
 int counter = 0;
 int threshold = 10;
 
+int readingsToKeep = 50;
+int readings[50];
+int readingsCounter = 0;
+float readingsSum = 0;
+int prevAvgHeight;
+int prevStableHeight;
+boolean waitingForStability = true;
+
 int lastHeight = 0;
 
 void setColors(int distanceRead) {
@@ -68,33 +76,37 @@ unsigned char len = 0;
 
 void loop()
 {
-  int val = analogRead(4);
-  sum += val;
-  counter += 1;
+  int sensorValue = analogRead(4);
   
-  if (counter > threshold) {
-    int dishes = sum / counter;
-    
-    Serial.println("");
-    Serial.print("Dishes height:" );
-    Serial.println(dishes);
-    Serial.println("");
-    Serial.println("=======");
+  readingsSum -= readings[readingsCounter];
+  readingsSum += sensorValue;
+  float readingsMean = readingSum/readingsToKeep;
 
-    setColors(dishes);
-
-    counter = 0;
-    sum = 0;
-    
-    if ((lastHeight - dishes) > 30) {
-      soundCtrl.asyncPlayVoice(1);
-      Serial.println("c");
-    } else if ((lastHeight - dishes) < -30) {
-      soundCtrl.asyncPlayVoice(0);
-      Serial.println("c");
-    }
-    
-    lastHeight = dishes;
+  readings[readingsCounter] = sensorValue;
+  readingsCounter++;
+  if (readingsCounter >= readingsToKeep){
+        int avgHeight = readingsSum/readingsCounter;
+        int difference = avgHeight - prevAvgHeight;
+        if (difference > 30 || difference < -30){
+           //we're changing!
+           waitingForStability = true;
+           prevStableHeight = prevAvgHeight;
+        }
+        if (waitingForStability && difference < 10 && difference > -10){
+           //we're stable
+           waitingForStability = false; 
+           int stableDifference = prevStableHeight - avgHeight;
+           if (stableDifference > 30){
+              soundCtrl.asyncPlayVoice(1);
+           }
+           else if (stableDifference < -30){
+              soundCtrl.asyncPlayVoice(0);
+           }
+        }
+        prevAvgHeight = avgHeight;
+        
+  	readingsCounter = 0; 
+        setColors(dishes);
   }
   
   delay(200);
