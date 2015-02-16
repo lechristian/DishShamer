@@ -113,7 +113,7 @@ void loop()
         stabilized = false;
       }
       // Good
-      Serial.println("c");
+      Serial.println("g");
       Serial.println("");
     }
     
