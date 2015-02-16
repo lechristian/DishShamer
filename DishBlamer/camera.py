@@ -15,7 +15,7 @@ import json
 # Serial port for Arduino
 SERIAL_PORT = "/dev/tty.usbmodem1411"
 
-testing = True
+# testing = True
 
 log = open("log.txt","r+w")
 logContent = log.read()
