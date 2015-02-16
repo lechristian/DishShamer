@@ -16,11 +16,12 @@ def imageCapture():
         try:
             data = s.read(s.inWaiting())
             if data:
-                if data == "c":
+                if data == "c" or data == "b":
                     ret, frame = cap.read()
                     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
 
-                    curDateTime = datetime.now().strftime('%m.%d.%Y-%H.%M.%s')
+                    curDateTime = data
+                    curDateTime += datetime.now().strftime('%m.%d.%Y-%H.%M.%s')
                     curDateTime += '.jpg'
                     out = cv2.imwrite(curDateTime, frame)
 
