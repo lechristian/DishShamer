@@ -10,7 +10,7 @@ import json
 # Serial port for Arduino
 SERIAL_PORT = "/dev/tty.usbmodem1411"
 
-testing = True
+# testing = True
 
 #tracking user interactions
 log = open("log.txt","r+w")
@@ -159,7 +159,8 @@ def imageCapture():
                     ret, frame = cap.read()
                     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
 
-                    curDateTime = datetime.now().strftime('%m.%d.%Y-%H.%M.%s')
+                    curDateTime = data
+                    curDateTime += datetime.now().strftime('%m.%d.%Y-%H.%M.%s')
                     curDateTime += '.jpg'
                     out = cv2.imwrite(curDateTime, frame)
                 if data == "g":
