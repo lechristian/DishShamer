@@ -1,15 +1,9 @@
 import cv2
 import time
-
-#import serial
+import serial
 from datetime import datetime
-
-# Import smtplib for the actual sending function
 import smtplib
-
-# Import the email modules we'll need
 from email.mime.text import MIMEText
-
 import operator
 import json
 
@@ -18,13 +12,26 @@ SERIAL_PORT = "/dev/tty.usbmodem1411"
 
 testing = True
 
+#tracking user interactions
 log = open("log.txt","r+w")
 logContent = log.read()
 logArray = json.loads(logContent)
-emails = {"Sarah":"schasins@gmail.com","Alison":"schasins@gmail.com","Baxter":"schasins@gmail.com","Christian":"schasins@gmail.com"}
-GMAIL_USER = 'yourangrydishes@gmail.com'
-GMAIL_PASS = 'yosupyosup'
+
+#email confiugration detalis
+emails = {} #CUSTOMIZE: a dictionary that maps names to email addresses
+#for each name in tihs dictionary, must have an image with the same name in the training folder
+GMAIL_USER = "" #CUSTOMIZE: gmail account name here
+GMAIL_PASS = "" #CUSTOMIZE: gmail account password here
+
+#the histograms from the labeled images go here
 histograms = {}
+
+#
+# Image identification code
+# Note that this is a very, very weak form of image recognition.
+# It worked for our prototyping purposes, but for any more extensive purposes,
+# this should be replaced with something more robust.
+#
 
 def features(imageFile):
     img=cv2.imread(imageFile)
@@ -50,6 +57,10 @@ def guessUser(filename):
             nameGuessSoFar = name
     return nameGuessSoFar
 
+#
+# Logging user interactions
+#
+
 def processNewEvent(filename, addedDishes):
     global log
     timestamp = time.time()
@@ -63,6 +74,10 @@ def processNewEvent(filename, addedDishes):
     log.write(json.dumps(logArray))
     log.close()
     log = open("log.txt","r+w")
+
+#
+# Email feedback
+#
 
 def generateEmail():
     scores = {}
@@ -105,6 +120,10 @@ def generateEmail():
         smtpserver.sendmail(GMAIL_USER, recipient, msg)
         smtpserver.close()
 
+#
+# For testing without Arduino inputs
+#
+
 def testWithoutSerialInput():
     time.sleep(5);
     processNewEvent("images/a.jpg",True)
@@ -121,6 +140,9 @@ def testWithoutSerialInput():
     time.sleep(3)
     processNewEvent("images/e.jpg",True)
 
+#
+# The main loop, waiting for new events from the serial input, responding to them
+#
 
 def imageCapture():   
     cap = cv2.VideoCapture(0)
