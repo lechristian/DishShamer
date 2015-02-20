@@ -6,10 +6,12 @@ var update = function(){
 	  url: "log.txt",
 	  success: function(data){
 
+	  	//no updates if data hasn't changed
 	  	if (oldData!== null && data.length === oldData.length){
 	  		return;
 	  	}
 
+	  	//if new data, show who added or removed a dish
 	  	var thisRoundName = null;
 	  	var thisRoundPositive = null;
 	  	if (oldData !== null){
@@ -28,6 +30,7 @@ var update = function(){
 	  		}
 	  	}
 
+	  	//update the left leaderboard (returns vs checkouts)
 	  	var scores = {};
 	  	for (var i = 0; i<data.length; i++){
 	  		var cells = data[i];
@@ -56,6 +59,7 @@ var update = function(){
 	  	tableStr += "</tbody></table>";
 	  	$("#returns").html(tableStr);
 
+	  	//update the right leaderboard (average time before return)
 	  	var timeSums = {};
 	  	var numCheckoutReturnPairs = {}
 	  	for (var i = 0; i<data.length; i++){
@@ -113,8 +117,10 @@ var update = function(){
 $(update);
 
 var removeHighlights = function(){
+	//fade the notification of user interaction with DishShamer
 	$("#notification").fadeTo(2000, 0.0);
 	setTimeout(function(){
+		//remove the highlights on leaderboard rows affected by the user interaction
 		$("tr").removeClass("false");
 		$("tr").removeClass("true");
 	},1700);
